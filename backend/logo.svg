@@ -1,0 +1,157 @@
+<svg width="1600" height="1600" viewBox="0 0 1600 1600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1600" fill="#FFFFFF"/>
+
+  <!-- Color Definitions -->
+  <defs>
+    <style>
+      .navy { fill: #0B3C5D; }
+      .gold { fill: #F2C94C; }
+      .navy-stroke {
+        stroke: #0B3C5D;
+        stroke-width: 28;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+      .gold-stroke {
+        stroke: #F2C94C;
+        stroke-width: 22;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+      .text {
+        font-family: "Inter", "Avenir", "Helvetica Neue", Arial, sans-serif;
+        font-size: 64px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        fill: #0B3C5D;
+      }
+    </style>
+  </defs>
+
+  <!-- Thin circular border -->
+  <circle cx="800" cy="690" r="430" class="navy-stroke" stroke-width="18"/>
+
+  <!-- Heritage arch inspired by Indian/Bhopal architecture -->
+  <path
+    d="M520 710
+       C520 540, 650 405, 800 405
+       C950 405, 1080 540, 1080 710"
+    class="navy-stroke"
+    stroke-width="26"
+  />
+
+  <!-- Inner arch detail -->
+  <path
+    d="M610 700
+       C610 580, 700 490, 800 490
+       C900 490, 990 580, 990 700"
+    class="navy-stroke"
+    stroke-width="16"
+    opacity="0.9"
+  />
+
+  <!-- Small dome top -->
+  <path
+    d="M735 405
+       C750 350, 785 320, 800 285
+       C815 320, 850 350, 865 405"
+    class="navy-stroke"
+    stroke-width="22"
+  />
+
+  <!-- Abstract diya / flame -->
+  <path
+    d="M800 615
+       C755 565, 760 500, 815 440
+       C825 505, 900 535, 865 610
+       C850 645, 820 668, 800 690
+       C780 668, 760 646, 800 615Z"
+    class="gold"
+  />
+
+  <!-- Inner flame highlight -->
+  <path
+    d="M805 615
+       C785 585, 795 545, 835 510
+       C835 555, 875 575, 850 620
+       C838 642, 820 655, 805 670
+       C795 650, 792 632, 805 615Z"
+    fill="#FFFFFF"
+    opacity="0.85"
+  />
+
+  <!-- Diya base at center of book -->
+  <path
+    d="M705 720
+       C735 765, 865 765, 895 720
+       C850 735, 750 735, 705 720Z"
+    class="gold"
+  />
+
+  <!-- Open book base: left page -->
+  <path
+    d="M385 805
+       C505 765, 635 770, 800 845
+       L800 1010
+       C650 930, 520 910, 385 950
+       Z"
+    fill="#0B3C5D"
+  />
+
+  <!-- Open book base: right page -->
+  <path
+    d="M1215 805
+       C1095 765, 965 770, 800 845
+       L800 1010
+       C950 930, 1080 910, 1215 950
+       Z"
+    fill="#0B3C5D"
+  />
+
+  <!-- Book page highlights -->
+  <path
+    d="M455 845
+       C565 820, 665 835, 760 880"
+    class="gold-stroke"
+    stroke-width="14"
+    opacity="0.95"
+  />
+
+  <path
+    d="M1145 845
+       C1035 820, 935 835, 840 880"
+    class="gold-stroke"
+    stroke-width="14"
+    opacity="0.95"
+  />
+
+  <!-- Central book fold -->
+  <path
+    d="M800 845 L800 1010"
+    stroke="#F2C94C"
+    stroke-width="16"
+    stroke-linecap="round"
+  />
+
+  <!-- Subtle lower book curve -->
+  <path
+    d="M385 950
+       C525 925, 665 945, 800 1010
+       C935 945, 1075 925, 1215 950"
+    class="navy-stroke"
+    stroke-width="20"
+  />
+
+  <!-- Institution Name -->
+  <text x="800" y="1245" text-anchor="middle" class="text">
+    Maulana Azad Central Library, Bhopal
+  </text>
+
+  <!-- Minimal gold separator line -->
+  <line x1="500" y1="1295" x2="1100" y2="1295"
+        stroke="#F2C94C"
+        stroke-width="10"
+        stroke-linecap="round"/>
+</svg>

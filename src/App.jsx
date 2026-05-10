@@ -321,7 +321,7 @@ const styles = `
 // ─── State ───────────────────────────────────────────────────────────────────
 export default function EduConnect() {
   const [db, setDb] = useState(MOCK_DB);
-  const [screen, setScreen] = useState("landing"); // landing | studentAuth | tutorAuth | adminAuth | studentDash | tutorDash | adminDash
+  const [screen, setScreen] = useState("landing");
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
 
@@ -368,7 +368,8 @@ export default function EduConnect() {
         {screen === "adminAuth" && <AdminAuth db={db} onLogin={login} onBack={() => setScreen("landing")} />}
         {screen === "studentDash" && <StudentDashboard user={currentUser} db={db} onLogout={logout} />}
         {screen === "tutorDash" && <TutorDashboard user={currentUser} db={db} onLogout={logout} onAddMeeting={addMeeting} onDeleteMeeting={deleteMeeting} />}
-        {screen === "adminDash" && <AdminDashboard user={currentUser} db={db} onLogout={logout} onDeleteMeeting={deleteMeeting} />}
+        {/* ✅ FIX 1: onAddMeeting prop add kiya */}
+        {screen === "adminDash" && <AdminDashboard user={currentUser} db={db} onLogout={logout} onDeleteMeeting={deleteMeeting} onAddMeeting={addMeeting} />}
       </div>
     </>
   );
@@ -826,7 +827,8 @@ function AddMeeting({ user, students, onAdd }) {
 }
 
 // ─── Admin Dashboard ──────────────────────────────────────────────────────────
-function AdminDashboard({ user, db, onLogout, onDeleteMeeting }) {
+// ✅ FIX 2: onAddMeeting prop add kiya
+function AdminDashboard({ user, db, onLogout, onDeleteMeeting, onAddMeeting }) {
   const [nav, setNav] = useState("home");
   const NavItem = ({ id, icon, label }) => (
     <button className={`nav-item ${nav === id ? "active" : ""}`} onClick={() => setNav(id)}>
@@ -844,6 +846,8 @@ function AdminDashboard({ user, db, onLogout, onDeleteMeeting }) {
         <NavItem id="students" icon="book" label="Students" />
         <NavItem id="tutors" icon="star" label="Tutors" />
         <NavItem id="meetings" icon="calendar" label="All Meetings" />
+        {/* ✅ FIX 3: Schedule Meeting nav item add kiya */}
+        <NavItem id="schedule" icon="plus" label="Schedule Meeting" />
         <div className="sidebar-footer">
           <div style={{marginBottom:"0.8rem",display:"flex",alignItems:"center",gap:"8px"}}>
             <div className="avatar" style={{background:"#ef444420",color:"var(--red)"}}>A</div>
@@ -857,6 +861,8 @@ function AdminDashboard({ user, db, onLogout, onDeleteMeeting }) {
         {nav === "students" && <AdminStudents db={db} />}
         {nav === "tutors" && <AdminTutors db={db} />}
         {nav === "meetings" && <AdminMeetings db={db} onDelete={onDeleteMeeting} />}
+        {/* ✅ FIX 4: Schedule Meeting page render kiya */}
+        {nav === "schedule" && <AdminScheduleMeeting db={db} onAdd={(m) => { onAddMeeting(m); setNav("meetings"); }} />}
       </main>
     </div>
   );
@@ -972,6 +978,83 @@ function AdminMeetings({ db, onDelete }) {
               </div>
             );
           })}
+      </div>
+    </>
+  );
+}
+
+// ✅ FIX 5: Naya AdminScheduleMeeting component — tutor + student dono select kar sakte hain
+function AdminScheduleMeeting({ db, onAdd }) {
+  const [form, setForm] = useState({
+    tutorId: "", studentId: "", studentName: "",
+    subject: "", date: "", time: "", duration: "60", notes: ""
+  });
+  const [err, setErr] = useState("");
+
+  const set = k => e => {
+    const v = e.target.value;
+    if (k === "studentId") {
+      const s = db.students.find(s => s.id === v);
+      setForm(p => ({ ...p, studentId: v, studentName: s ? s.name : "" }));
+    } else {
+      setForm(p => ({ ...p, [k]: v }));
+    }
+  };
+
+  const submit = () => {
+    if (!form.tutorId || !form.studentId || !form.subject || !form.date || !form.time)
+      return setErr("Saare required fields fill karo");
+    onAdd(form);
+  };
+
+  return (
+    <>
+      <div className="page-header"><h1>Schedule Meeting ➕</h1><p>Admin ki taraf se koi bhi session book karo</p></div>
+      <div className="card">
+        {err && <div className="err">{err}</div>}
+        <div className="form-grid">
+          <div>
+            <label>Tutor *</label>
+            <select value={form.tutorId} onChange={set("tutorId")}>
+              <option value="">Select tutor</option>
+              {db.tutors.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label>Student *</label>
+            <select value={form.studentId} onChange={set("studentId")}>
+              <option value="">Select student</option>
+              {db.students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+            </select>
+          </div>
+          <div>
+            <label>Subject *</label>
+            <input placeholder="e.g. Algebra Basics" value={form.subject} onChange={set("subject")} />
+          </div>
+          <div>
+            <label>Date *</label>
+            <input type="date" value={form.date} onChange={set("date")} />
+          </div>
+          <div>
+            <label>Time *</label>
+            <input type="time" value={form.time} onChange={set("time")} />
+          </div>
+          <div>
+            <label>Duration (minutes)</label>
+            <select value={form.duration} onChange={set("duration")}>
+              {["30","45","60","90","120"].map(d => <option key={d} value={d}>{d} minutes</option>)}
+            </select>
+          </div>
+          <div style={{gridColumn:"1/-1"}}>
+            <label>Notes (optional)</label>
+            <input placeholder="Topic ya chapter jo cover karna hai..." value={form.notes} onChange={set("notes")} />
+          </div>
+        </div>
+        <div className="form-actions">
+          <button className="btn btn-primary btn-sm" style={{width:"auto",padding:"10px 24px"}} onClick={submit}>
+            Schedule Meeting
+          </button>
+        </div>
       </div>
     </>
   );
