@@ -417,6 +417,7 @@ export default function EduConnect() {
           <AdminDashboard user={currentUser} db={db} onLogout={logout} onDeleteMeeting={deleteMeeting} onAddMeeting={addMeeting} onMarkComplete={markMeetingComplete} onAddAnnouncement={addAnnouncement} />
         )}
       </div>
+         <EduChatbot />
     </>
   );
 }
@@ -1430,5 +1431,192 @@ function MeetingCard({ meeting, showStudent }) {
       </div>
       <span className={`badge badge-${meeting.status==="upcoming"?"upcoming":meeting.status==="completed"?"done":"cancelled"}`}>{meeting.status}</span>
     </div>
+  );
+}
+// ─── EduConnect Chatbot ───────────────────────────────────────────────────────
+const BOT_REPLIES = [
+  { keys: ["book", "tutor", "schedule", "meeting", "session", "kaise book"],
+    reply: "📅 Tutor book karna easy hai!\n1. Student dashboard open karo\n2. 'Browse Tutors' section mein jao\n3. Apna subject select karo\n4. Admin se contact karo assignment ke liye\n\nYa Admin directly 'Schedule Meeting' se book kar sakta hai!" },
+
+  { keys: ["subject", "course", "available", "subjects", "kya hai", "konsa"],
+    reply: "📚 EduConnect mein ye subjects available hain:\n\n• 📐 Mathematics\n• ⚛️ Physics\n• 🧪 Chemistry\n• 🧬 Biology\n• 💻 Computer Science\n• 📖 English\n• 🏛️ History\n• 🌍 Geography\n• 📊 Economics\n• ⚖️ Political Science\n\nHar subject ke liye dedicated expert tutors hain!" },
+
+  { keys: ["tutor", "teacher", "find", "best", "kaun", "who"],
+    reply: "🎓 Tutor dhundna:\n\n1. Student login karo\n2. Left sidebar mein 'Browse Tutors' click karo\n3. Subject filter use karo\n4. Rating aur bio dekho\n5. Admin se tutor assign karwao\n\nSabhi tutors verified experts hain — IIT, AIIMS, Oxford grads!" },
+
+  { keys: ["login", "password", "signup", "register", "account", "kaise login"],
+    reply: "🔐 Login credentials:\n\n👤 Student: rahul@student.com / pass123\n🎓 Tutor: amit@tutor.com / tutor123\n⚙️ Admin: admin@educonnect.com / admin@123\n\nNew account ke liye Register tab use karo!" },
+
+  { keys: ["progress", "track", "percentage", "kitna", "completion"],
+    reply: "📈 Progress kaise dekhen:\n\n1. Student dashboard → 'Progress' tab\n2. Course completion % dikhai deta hai\n3. Achievements unlock hote hain\n4. Session history bhi milti hai\n\nStreak maintain karo — 🔥 badge milta hai!" },
+
+  { keys: ["reminder", "notification", "alert", "popup", "bell"],
+    reply: "🔔 Session Reminders:\n\nEduConnect automatically popup reminder bhejta hai jab session:\n• Aaj ho (TODAY badge)\n• Kal ho\n• 3 din mein ho\n\nReminder dismiss karne ke baad dobara nahi aata!" },
+
+  { keys: ["rating", "rate", "review", "star", "feedback"],
+    reply: "⭐ Session Rating kaise dein:\n\n1. Schedule tab mein jao\n2. Completed session ke paas 'Rate' button click karo\n3. 1-5 stars select karo\n4. Submit karo!\n\nTutor ko bhi aapki rating dikhai deti hai." },
+
+  { keys: ["admin", "panel", "manage", "control", "sab"],
+    reply: "⚙️ Admin Panel features:\n\n• Saare students/tutors dekho\n• Koi bhi session book karo\n• Meetings complete mark karo\n• Announcements broadcast karo\n• Subject coverage analytics\n• Filter by status (upcoming/done)\n\nAdmin: admin@educonnect.com" },
+
+  { keys: ["announcement", "notice", "broadcast", "news"],
+    reply: "📣 Announcements:\n\nAdmin dashboard → 'Announcements' section:\n• Naya announcement post karo\n• ⭐ Important mark kar sakte ho\n• Students ke home dashboard pe dikhai deta hai\n\nStudents top 2 latest announcements dekhte hain!" },
+
+  { keys: ["streak", "fire", "daily", "roz", "badge", "achievement"],
+    reply: "🔥 Streak & Achievements:\n\n• Roz session karo = streak badhta hai\n• 3+ day streak = Hot Streak badge 🔥\n• 1st session = 'First Session' badge\n• 5 sessions = '5 Sessions' badge\n• 50% progress = 'Halfway There' ⭐\n\nProgress tab mein sab dikhai deta hai!" },
+
+  { keys: ["delete", "cancel", "remove", "hatao"],
+    reply: "🗑️ Meeting delete karna:\n\n• Tutor: Schedule tab → Delete button\n• Admin: All Meetings → Delete button\n\nAbhi 'Cancel' status feature coming soon hai. Farhad raho!" },
+
+  { keys: ["mark", "complete", "done", "khatam", "finish"],
+    reply: "✅ Session complete karna:\n\n1. Tutor ya Admin login karo\n2. Schedule/Meetings section mein jao\n3. Upcoming session ke paas '✓ Mark Done' click karo\n4. Status 'completed' ho jaata hai\n5. Student rating de sakta hai!" },
+
+  { keys: ["how", "work", "kaise", "kya", "explain", "bata", "help", "?"],
+    reply: "🤖 EduConnect kaise kaam karta hai:\n\n1️⃣ Student account banao & subject chuno\n2️⃣ Admin tutor assign karta hai\n3️⃣ Session schedule hoti hai\n4️⃣ Reminder popup aata hai\n5️⃣ Session ke baad rating do\n6️⃣ Progress track karo!\n\nKoi specific sawaal? Type karo!" },
+
+  { keys: ["hi", "hello", "hey", "hii", "namaste", "helo", "start"],
+    reply: "👋 Hello! Main EduConnect Assistant hoon!\n\nMain aapki help kar sakta hoon:\n• 📚 Subjects & Tutors\n• 📅 Session Booking\n• 📈 Progress Tracking\n• 🔐 Login Help\n• ⚙️ Admin Features\n\nKya jaanna chahte ho?" },
+];
+
+function getBotReply(input) {
+  const msg = input.toLowerCase().trim();
+  for (const item of BOT_REPLIES) {
+    if (item.keys.some(k => msg.includes(k))) return item.reply;
+  }
+  return "🤔 Hmm, samajh nahi aaya.\n\nAap ye try karo:\n• 'How to book tutor'\n• 'Available subjects'\n• 'How to track progress'\n• 'Login kaise karein'\n\nYa kuch aur likho, main koshish karunga! 😊";
+}
+
+export function EduChatbot() {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState([
+    { from: "bot", text: "👋 Hello! Main EduConnect AI Assistant hoon!\n\nAapki kaise help kar sakta hoon? Kuch bhi pucho — tutors, sessions, subjects, ya kuch aur!" }
+  ]);
+  const [input, setInput] = useState("");
+  const [typing, setTyping] = useState(false);
+  const bottomRef = useRef(null);
+
+  useEffect(() => {
+    if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, open]);
+
+  const send = () => {
+    const val = input.trim();
+    if (!val) return;
+    const userMsg = { from: "user", text: val };
+    setMessages(prev => [...prev, userMsg]);
+    setInput("");
+    setTyping(true);
+    setTimeout(() => {
+      setMessages(prev => [...prev, { from: "bot", text: getBotReply(val) }]);
+      setTyping(false);
+    }, 700 + Math.random() * 500);
+  };
+
+  const handleKey = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
+
+  const chatStyles = `
+    .edu-fab { position:fixed;bottom:2rem;right:2rem;z-index:999;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#4f8ef7,#7c3aed);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px #4f8ef760;transition:transform .2s,box-shadow .2s;font-size:1.4rem; }
+    .edu-fab:hover { transform:scale(1.1);box-shadow:0 6px 28px #4f8ef780; }
+    .edu-fab .notif-pulse { position:absolute;top:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#10b981;border:2px solid #07090f;animation:blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1}50%{opacity:.3} }
+    .edu-chat-box { position:fixed;bottom:5.5rem;right:2rem;z-index:999;width:340px;max-width:calc(100vw - 2rem);background:#0f1623;border:1px solid #1e2d47;border-radius:20px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 16px 48px #00000080;animation:chatIn .25s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes chatIn { from{opacity:0;transform:translateY(20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)} }
+    .edu-chat-header { background:#111827;padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1e2d47; }
+    .edu-chat-avatar { width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#4f8ef7,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0; }
+    .edu-chat-name { font-family:'Sora',sans-serif;font-weight:700;font-size:.88rem;color:#e2e8f0; }
+    .edu-chat-status { font-size:.72rem;color:#10b981;display:flex;align-items:center;gap:4px;margin-top:1px; }
+    .edu-chat-status::before { content:'';width:6px;height:6px;border-radius:50%;background:#10b981;display:inline-block; }
+    .edu-chat-close { margin-left:auto;background:none;border:none;color:#5a7090;cursor:pointer;padding:4px;border-radius:6px;display:flex;font-size:1.1rem;line-height:1; }
+    .edu-chat-close:hover { color:#e2e8f0; }
+    .edu-messages { height:320px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth; }
+    .edu-messages::-webkit-scrollbar { width:4px; }
+    .edu-messages::-webkit-scrollbar-track { background:transparent; }
+    .edu-messages::-webkit-scrollbar-thumb { background:#1e2d47;border-radius:4px; }
+    .edu-bubble { max-width:82%;padding:9px 12px;border-radius:14px;font-family:'Sora',sans-serif;font-size:.8rem;line-height:1.55;white-space:pre-wrap;word-break:break-word; }
+    .edu-bubble.bot { background:#161f30;border:1px solid #1e2d47;color:#c8d8f0;border-bottom-left-radius:4px;align-self:flex-start; }
+    .edu-bubble.user { background:linear-gradient(135deg,#4f8ef7,#7c3aed);color:#fff;border-bottom-right-radius:4px;align-self:flex-end; }
+    .edu-typing { display:flex;gap:4px;padding:10px 14px;align-self:flex-start; }
+    .edu-typing span { width:7px;height:7px;border-radius:50%;background:#4f8ef7;animation:dot 1.2s infinite; }
+    .edu-typing span:nth-child(2){animation-delay:.2s}
+    .edu-typing span:nth-child(3){animation-delay:.4s}
+    @keyframes dot { 0%,80%,100%{transform:scale(.7);opacity:.4}40%{transform:scale(1);opacity:1} }
+    .edu-input-row { padding:10px 12px;border-top:1px solid #1e2d47;display:flex;gap:8px;align-items:center; }
+    .edu-input-row input { flex:1;background:#07090f;border:1px solid #1e2d47;border-radius:10px;padding:9px 12px;color:#e2e8f0;font-size:.82rem;font-family:'Sora',sans-serif;outline:none;transition:border-color .2s; }
+    .edu-input-row input:focus { border-color:#4f8ef7; }
+    .edu-input-row input::placeholder { color:#3a5070; }
+    .edu-send { width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#4f8ef7,#7c3aed);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s; }
+    .edu-send:hover { opacity:.85; }
+    .edu-suggestions { padding:0 12px 10px;display:flex;gap:6px;flex-wrap:wrap; }
+    .edu-chip { background:#161f30;border:1px solid #1e2d47;color:#8099b8;font-family:'Sora',sans-serif;font-size:.72rem;padding:4px 10px;border-radius:100px;cursor:pointer;transition:all .2s;white-space:nowrap; }
+    .edu-chip:hover { border-color:#4f8ef7;color:#4f8ef7; }
+  `;
+
+  const suggestions = ["📚 Subjects", "📅 Book session", "🔐 Login help", "📈 Progress", "⭐ Rating"];
+  const suggestionQueries = ["available subjects", "how to book tutor", "login kaise karein", "track progress", "rate session"];
+
+  return (
+    <>
+      <style>{chatStyles}</style>
+      <button className="edu-fab" onClick={() => setOpen(o => !o)} title="EduConnect Assistant">
+        {open ? "✕" : "🤖"}
+        {!open && <span className="notif-pulse" />}
+      </button>
+
+      {open && (
+        <div className="edu-chat-box">
+          <div className="edu-chat-header">
+            <div className="edu-chat-avatar">🤖</div>
+            <div>
+              <div className="edu-chat-name">EduConnect AI</div>
+              <div className="edu-chat-status">Online — ready to help</div>
+            </div>
+            <button className="edu-chat-close" onClick={() => setOpen(false)}>✕</button>
+          </div>
+
+          <div className="edu-messages">
+            {messages.map((m, i) => (
+              <div key={i} className={`edu-bubble ${m.from}`}>{m.text}</div>
+            ))}
+            {typing && (
+              <div className="edu-typing">
+                <span /><span /><span />
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+
+          <div className="edu-suggestions">
+            {suggestions.map((s, i) => (
+              <button key={s} className="edu-chip" onClick={() => {
+                setInput(suggestionQueries[i]);
+                setTimeout(() => {
+                  const val = suggestionQueries[i];
+                  setMessages(prev => [...prev, { from: "user", text: val }]);
+                  setInput("");
+                  setTyping(true);
+                  setTimeout(() => {
+                    setMessages(prev => [...prev, { from: "bot", text: getBotReply(val) }]);
+                    setTyping(false);
+                  }, 700);
+                }, 50);
+              }}>{s}</button>
+            ))}
+          </div>
+
+          <div className="edu-input-row">
+            <input
+              placeholder="Kuch bhi pucho..."
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={handleKey}
+              autoFocus
+            />
+            <button className="edu-send" onClick={send}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
